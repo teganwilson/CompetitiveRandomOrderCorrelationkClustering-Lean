@@ -9,7 +9,7 @@ Every Hypothesis, Definition, Claim, Lemma, and Theorem statement has been hand-
 
 Every declaration in the project has a docstring citing the paper. The main results reference their Theorem, Lemma, Definition, or Claim number. Helper Lemmas and Definitions that had no docstring got a generated one naming the result or section they support (e.g. "Auxiliary result for the proof of Theorem 4 (Section 7.3.4, Small-U case)").
 
-The main theorems (Theorems 4 and 5, Lemma 7.9) use only Lean's standard axioms. Fact 2.2 (`HypergeomChernoff`) and the [ACN05] 3-approximation guarantee for PIVOT (`PivotThreeApprox`) are assumed as hypotheses, not proved, and no Chernoff bounds or other external results are formalized.
+The main theorems (Theorems 4 and 5) use only Lean's standard axioms. Fact 2.2 (`HypergeomChernoff`) and the [ACN05] 3-approximation guarantee for PIVOT (`PivotThreeApprox`) are assumed as hypotheses, not proved, and no Chernoff bounds or other external results are formalized.
 
 **Deviation from the paper.** In the Small-\(U\) case the Lean project measures \(\theta\) with \(T\) itself rather than the window start \(L_i\), and doesn't use the Small-\(U\) condition when bounding \(|U|\). Both changes only simplify the argument; the conclusion is the same. 
 

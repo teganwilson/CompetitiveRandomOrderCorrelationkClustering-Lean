@@ -4,11 +4,11 @@ public import RequestProject.Pivot
 public import RequestProject.Chain
 
 /-!
-# Pivots along the arrival process: Lemmas 7.7 and 7.12
+# Pivots along the arrival process: Lemmas 7.6 and 7.11
 
 We show that the state of PIVOT after `t` arrivals only depends on the first `t` arrivals, define
 the set of *uncovered* vertices at time `t` (Definition 7.2 / Section 6: vertices that have not
-arrived and are not adjacent to any pivot arrived so far), and prove Lemma 7.7 and Lemma 7.12 by
+arrived and are not adjacent to any pivot arrived so far), and prove Lemma 7.6 and Lemma 7.11 by
 the sequential arrival argument of `RequestProject/Chain.lean`.
 -/
 
@@ -34,12 +34,12 @@ section invariance
 
 variable {G}
 
-/-- Auxiliary result for Lemmas 7.7 and 7.12 (Section 7.3). -/
+/-- Auxiliary result for Lemmas 7.6 and 7.11 (Section 7.3). -/
 lemma mul_apply_of_lt {σ ρ : Equiv.Perm (Fin n)} {t : ℕ} (hρ : ∀ p : Fin n, (p : ℕ) < t → ρ p = p)
     (p : Fin n) (hp : (p : ℕ) < t) : (σ * ρ) p = σ p := by
   rw [Equiv.Perm.mul_apply, hρ p hp]
 
-/-- Auxiliary result for Lemmas 7.7 and 7.12 (Section 7.3). -/
+/-- Auxiliary result for Lemmas 7.6 and 7.11 (Section 7.3). -/
 lemma pivotsUpTo_mul {σ ρ : Equiv.Perm (Fin n)} {t : ℕ}
     (hρ : ∀ p : Fin n, (p : ℕ) < t → ρ p = p) : pivotsUpTo G (σ * ρ) t = pivotsUpTo G σ t := by
   have : ∀ s ≤ t, pivotsUpTo G (σ * ρ) s = pivotsUpTo G σ s := by
@@ -55,7 +55,7 @@ lemma pivotsUpTo_mul {σ ρ : Equiv.Perm (Fin n)} {t : ℕ}
       · rw [pivotsUpTo_succ_of_ge G _ (by omega), pivotsUpTo_succ_of_ge G _ (by omega), ih]
   exact this t le_rfl
 
-/-- Auxiliary result for Lemmas 7.7 and 7.12 (Section 7.3). -/
+/-- Auxiliary result for Lemmas 7.6 and 7.11 (Section 7.3). -/
 lemma symm_lt_iff {ρ : Equiv.Perm (Fin n)} {t : ℕ} (hρ : ∀ p : Fin n, (p : ℕ) < t → ρ p = p)
     (q : Fin n) : (ρ.symm q : ℕ) < t ↔ (q : ℕ) < t := by
   constructor
@@ -67,11 +67,11 @@ lemma symm_lt_iff {ρ : Equiv.Perm (Fin n)} {t : ℕ} (hρ : ∀ p : Fin n, (p :
     have e : ρ.symm q = q := (Equiv.symm_apply_eq ρ).2 (hρ q h).symm
     rwa [e]
 
-/-- Auxiliary result for Lemmas 7.7 and 7.12 (Section 7.3). -/
+/-- Auxiliary result for Lemmas 7.6 and 7.11 (Section 7.3). -/
 lemma mul_symm_apply (σ ρ : Equiv.Perm (Fin n)) (v : Fin n) :
     (σ * ρ).symm v = ρ.symm (σ.symm v) := rfl
 
-/-- Auxiliary result for Lemmas 7.7 and 7.12 (Section 7.3). -/
+/-- Auxiliary result for Lemmas 7.6 and 7.11 (Section 7.3). -/
 lemma arrTime_mul_lt_iff {σ ρ : Equiv.Perm (Fin n)} {t : ℕ}
     (hρ : ∀ p : Fin n, (p : ℕ) < t → ρ p = p) (v : Fin n) :
     arrTime (σ * ρ) v < t ↔ arrTime σ v < t := by
@@ -79,20 +79,20 @@ lemma arrTime_mul_lt_iff {σ ρ : Equiv.Perm (Fin n)} {t : ℕ}
   rw [mul_symm_apply]
   exact symm_lt_iff hρ _
 
-/-- Auxiliary result for Lemmas 7.7 and 7.12 (Section 7.3). -/
+/-- Auxiliary result for Lemmas 7.6 and 7.11 (Section 7.3). -/
 lemma fixOutside_Ipos_lt {t : ℕ} {E : Finset (Fin n)} {ρ : Equiv.Perm (Fin n)}
     (hρ : ρ ∈ fixOutside (Ipos t E)) : ∀ p : Fin n, (p : ℕ) < t → ρ p = p := by
   intro p hp
   apply fixOutside_mem_iff.1 hρ
   simp [Ipos]; omega
 
-/-- Auxiliary result for Lemmas 7.7 and 7.12 (Section 7.3). -/
+/-- Auxiliary result for Lemmas 7.6 and 7.11 (Section 7.3). -/
 lemma fixOutside_Ipos_mem {t : ℕ} {E : Finset (Fin n)} {ρ : Equiv.Perm (Fin n)}
     (hρ : ρ ∈ fixOutside (Ipos t E)) {p : Fin n} (hp : p ∈ E) : ρ p = p := by
   apply fixOutside_mem_iff.1 hρ
   simp [Ipos, hp]
 
-/-- Auxiliary result for Lemmas 7.7 and 7.12 (Section 7.3). -/
+/-- Auxiliary result for Lemmas 7.6 and 7.11 (Section 7.3). -/
 lemma uncovered_mul {σ ρ : Equiv.Perm (Fin n)} {t : ℕ}
     (hρ : ∀ p : Fin n, (p : ℕ) < t → ρ p = p) : uncovered G (σ * ρ) t = uncovered G σ t := by
   ext v
@@ -102,7 +102,7 @@ lemma uncovered_mul {σ ρ : Equiv.Perm (Fin n)} {t : ℕ}
 
 end invariance
 
-/-- Auxiliary result for Lemmas 7.7 and 7.12 (Section 7.3). -/
+/-- Auxiliary result for Lemmas 7.6 and 7.11 (Section 7.3). -/
 lemma uncovered_succ_subset (σ : Equiv.Perm (Fin n)) (t : ℕ) :
     uncovered G σ (t + 1) ⊆ uncovered G σ t := by
   intro v hv
@@ -115,13 +115,13 @@ lemma mem_pivotsUpTo_of_uncovered (σ : Equiv.Perm (Fin n)) {t : ℕ} (ht : t < 
   rw [mem_pivotsUpTo_succ G σ ht]
   exact Or.inr ⟨rfl, (mem_filter.1 h).2.2⟩
 
-/-- Auxiliary result for Lemmas 7.7 and 7.12 (Section 7.3). -/
+/-- Auxiliary result for Lemmas 7.6 and 7.11 (Section 7.3). -/
 lemma arrTime_ge_of_mem_uncovered {σ : Equiv.Perm (Fin n)} {t : ℕ} {v : Fin n}
     (h : v ∈ uncovered G σ t) : t ≤ (σ.symm v : ℕ) := (mem_filter.1 h).2.1
 
-/-! ### Lemma 7.12 -/
+/-! ### Lemma 7.11 -/
 
-/-- The sequential estimate behind Lemma 7.12: for any set `Q` of vertices and any `x`, the
+/-- The sequential estimate behind Lemma 7.11: for any set `Q` of vertices and any `x`, the
 probability that no pivot of `Q` arrives among the first `t` arrivals while at least `x` vertices
 of `Q` are still uncovered at time `t` is at most `exp(-x t / n)`. -/
 lemma prob_noPivot_uncovered_le (Q : Finset (Fin n)) (x : ℝ) :
@@ -183,7 +183,7 @@ lemma prob_noPivot_uncovered_le (Q : Finset (Fin n)) (x : ℝ) :
       _ = Real.exp (-(x * ↑(t + 1) / n)) := by
           rw [← Real.exp_add]; congr 1; push_cast; ring
 
-/-- **Lemma 7.12 (almost-cliques without early pivots have few uncovered vertices).**  Fix an
+/-- **Lemma 7.11 (almost-cliques without early pivots have few uncovered vertices).**  Fix an
 almost-clique `Q_j` (the statement and proof hold for an arbitrary set `Q` of vertices) and let
 `Q_j^u` be the set of vertices of `Q_j` uncovered at time `2^i`.  Then for any constant `c`, with
 probability at least `1 - n^{-c}`, either a pivot from `Q_j` arrives by time `2^i` or

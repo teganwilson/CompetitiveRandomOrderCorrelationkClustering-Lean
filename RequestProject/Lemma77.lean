@@ -1,11 +1,9 @@
 module
 
-public import RequestProject.PivotPrefix
+public import RequestProject.PivotLoad
 
 /-!
-# Lemma 7.7
-
-The final pivot cluster of a pivot arriving late is unlikely to be large.
+# Lemma 7.7 (pivot cluster size at an arbitrary instant)
 -/
 
 @[expose] public section
@@ -17,175 +15,113 @@ namespace CCK
 
 variable {n : ℕ} (G : SimpleGraph (Fin n))
 
-/-- Auxiliary result for Lemma 7.7 (Section 7.3.2). -/
-lemma card_Ipos_single_le {s : ℕ} {q : Fin n} (hsq : s ≤ (q : ℕ)) :
-    (Ipos s {q}).card ≤ n - s - 1 := by
-  have h1 : Ipos s {q} ⊆ (Ipos s (∅ : Finset (Fin n))).erase q := by
-    intro p hp
-    simp only [Ipos, mem_filter, mem_univ, true_and, mem_singleton, mem_erase,
-      notMem_empty, not_false_eq_true, and_true] at hp ⊢
-    exact ⟨hp.2, hp.1⟩
-  have h2 : q ∈ Ipos s (∅ : Finset (Fin n)) := by simp [Ipos, hsq]
-  have := card_le_card h1
-  rw [card_erase_of_mem h2] at this
-  have := card_Ipos_le s (∅ : Finset (Fin n))
-  omega
-
-/-- The final pivot cluster of a pivot `v`, apart from `v`, consists of neighbours of `v` which
-are uncovered at the arrival time of `v`: `p_n(v) ≤ 1 + |R_{t_v - 1}(v)|` (proof of Lemma 7.7). -/
-lemma pivotCluster_erase_subset (σ : Equiv.Perm (Fin n)) {v : Fin n} (_hv : IsPivot G σ v) :
-    (univ.filter (fun u => pivotOf G σ u = v)).erase v ⊆
-      uncovered G σ (arrTime σ v) ∩ G.neighborFinset v := by
-  intro u hu
-  simp only [mem_erase, mem_filter, mem_univ, true_and] at hu
-  obtain ⟨huv, hpu⟩ := hu
-  have hnp : ¬ IsPivot G σ u := fun h => huv (by rw [← pivotOf_of_isPivot G σ h]; exact hpu)
-  obtain ⟨_, hadj, hmin⟩ := pivotOf_spec_of_not_isPivot G σ hnp
-  rw [hpu] at hadj hmin
-  refine mem_inter.2 ⟨?_, (G.mem_neighborFinset _ _).2 hadj⟩
-  simp only [uncovered, mem_filter, mem_univ, true_and]
-  constructor
-  · by_contra hlt
-    push_neg at hlt
-    obtain ⟨p, hp, hplt, hpadj⟩ := exists_pivot_adj_of_not_isPivot G σ hnp
-    have := hmin p hp hpadj
-    omega
-  · intro p hp hpadj
-    have hp' := (mem_pivotsUpTo_iff G σ _ p).1 hp
-    have := hmin p hp'.1 hpadj
-    omega
-
-/-- Auxiliary result for Lemma 7.7 (Section 7.3.2). -/
-lemma pclSize_le (σ : Equiv.Perm (Fin n)) {v : Fin n} (hv : IsPivot G σ v) :
-    pclSize G σ v ≤ 1 + (uncovered G σ (arrTime σ v) ∩ G.neighborFinset v).card := by
-  have h1 := card_le_card (pivotCluster_erase_subset G σ hv)
-  have h2 : v ∈ univ.filter (fun u => pivotOf G σ u = v) := by
-    simp [pivotOf_of_isPivot G σ hv]
-  rw [card_erase_of_mem h2] at h1
-  unfold pclSize
-  omega
-
-/-- **Lemma 7.7.**  For any `m ≥ 0` and any vertex `v`, conditioned on `v` being the `j`-th
-arrival (`t_v = j`, times counted from `1`), the probability that `v` is a pivot whose final
-pivot cluster has at least `m + 1` vertices is at most `exp(-m (j-1)/(n-1))`.  The conditional
-probability is written as `Pr[A ∧ t_v = j] ≤ bound · Pr[t_v = j]`.  (The hypothesis `m ≥ 0` turns
-out to be unnecessary.) -/
-theorem lemma_7_7 (v : Fin n) (m : ℝ) (j : ℕ) :
-    prob (fun σ => arrTime σ v + 1 = j ∧ IsPivot G σ v ∧ m + 1 ≤ (pclSize G σ v : ℝ)) ≤
-      Real.exp (-(m * (j - 1) / (n - 1))) * prob (fun σ => arrTime σ v + 1 = j) := by
-  rcases Nat.eq_zero_or_pos j with rfl | hj
-  · have : prob (fun σ : Equiv.Perm (Fin n) => arrTime σ v + 1 = 0 ∧ IsPivot G σ v ∧
-        m + 1 ≤ (pclSize G σ v : ℝ)) = 0 := by
-      unfold prob; simp
-    rw [this]; exact mul_nonneg (Real.exp_pos _).le (prob_nonneg _)
-  obtain ⟨j', rfl⟩ : ∃ j', j = j' + 1 := ⟨j - 1, by omega⟩
-  by_cases hj' : j' < n
-  swap
-  · have : prob (fun σ : Equiv.Perm (Fin n) => arrTime σ v + 1 = j' + 1 ∧ IsPivot G σ v ∧
-        m + 1 ≤ (pclSize G σ v : ℝ)) = 0 := by
-      unfold prob
-      simp only [div_eq_zero_iff, Nat.cast_eq_zero, card_eq_zero, filter_eq_empty_iff]
-      left; intro σ _ h
-      have := Fin.isLt (σ.symm v); unfold arrTime at h; omega
-    rw [this]; exact mul_nonneg (Real.exp_pos _).le (prob_nonneg _)
-  set q : Fin n := ⟨j', hj'⟩ with hq
-  set R : ℕ → Equiv.Perm (Fin n) → Finset (Fin n) :=
-    fun s σ => uncovered G σ s ∩ G.neighborFinset v with hR
-  set B : ℕ → Equiv.Perm (Fin n) → Prop := fun s σ => arrTime σ v = j' ∧
-    (∀ p ∈ pivotsUpTo G σ s, ¬ G.Adj p v) ∧ m ≤ ((R s σ).card : ℝ) with hB
-  set x : ℝ := m / (n - 1) with hx
-  have hn1 : (0 : ℝ) ≤ (n : ℝ) - 1 := by
-    have : (1 : ℝ) ≤ n := by exact_mod_cast (show 1 ≤ n by omega)
-    linarith
-  have chain : ∀ s ≤ j', prob (B s) ≤ Real.exp (-(x * s)) * prob (B 0) := by
-    intro s
-    induction s with
-    | zero => intro _; simp
-    | succ s ih =>
-      intro hs
-      have hsn : s < n := by omega
-      have h1 : prob (B (s + 1)) ≤ prob (fun σ => B s σ ∧ σ ⟨s, hsn⟩ ∉ R s σ) := by
-        apply prob_mono
-        rintro σ ⟨ha, hp, hm⟩
-        refine ⟨⟨ha, fun p hp' => hp p (pivotsUpTo_mono G σ (Nat.le_succ s) hp'), ?_⟩, ?_⟩
-        · refine hm.trans ?_
-          exact_mod_cast card_le_card (inter_subset_inter_right (uncovered_succ_subset G σ s))
-        · intro hmem
-          exact hp _ (mem_pivotsUpTo_of_uncovered G σ hsn (mem_inter.1 hmem).1)
-            ((G.mem_neighborFinset _ _).1 (mem_inter.1 hmem).2).symm
-      have hsq : (⟨s, hsn⟩ : Fin n) ∉ ({q} : Finset (Fin n)) := by
-        simp only [mem_singleton, hq, Fin.mk.injEq]; omega
-      have h2 := prob_step hsn {q} hsq (B s)
-        (by
-          rintro σ ρ hρ ⟨ha, hp, hm⟩
-          have hρ' := fixOutside_Ipos_lt hρ
-          refine ⟨?_, ?_, ?_⟩
-          · unfold arrTime at ha ⊢
-            rw [mul_symm_apply]
-            have hσv : σ.symm v = q := Fin.ext ha
-            rw [hσv]
-            have := fixOutside_Ipos_mem hρ (mem_singleton_self q)
-            rw [(Equiv.symm_apply_eq ρ).2 this.symm]
-          · rw [pivotsUpTo_mul hρ']; exact hp
-          · simp only [hR, uncovered_mul hρ']; exact hm)
-        (R s)
-        (by
-          intro σ ρ hρ _
-          simp only [hR, uncovered_mul (fixOutside_Ipos_lt hρ)])
-        (by
-          rintro σ ⟨ha, -, -⟩ u hu
-          have h1 := arrTime_ge_of_mem_uncovered G (mem_inter.1 hu).1
-          have hadj := (G.mem_neighborFinset _ _).1 (mem_inter.1 hu).2
-          have hne : σ.symm u ≠ q := by
-            intro h
-            have : u = v := by
-              have hσv : σ.symm v = q := Fin.ext ha
-              exact σ.symm.injective (h.trans hσv.symm)
-            exact G.loopless.irrefl _ (this ▸ hadj)
-          simp only [Ipos, mem_filter, mem_univ, true_and, mem_singleton]
-          exact ⟨h1, hne⟩)
-        x
-        (by
-          rintro σ ⟨-, -, hm⟩
-          have hI : ((Ipos s {q}).card : ℝ) ≤ (n : ℝ) - 1 := by
-            have := card_Ipos_single_le (n := n) (s := s) (q := q) (by simp [hq]; omega)
-            have h' : (Ipos s {q}).card ≤ n - 1 := by omega
-            have : (((Ipos s {q}).card : ℕ) : ℝ) ≤ ((n - 1 : ℕ) : ℝ) := by exact_mod_cast h'
-            rwa [Nat.cast_sub (by omega), Nat.cast_one] at this
-          rcases le_or_gt m 0 with hm0 | hm0
-          · have : x * ((Ipos s {q}).card : ℝ) ≤ 0 :=
-              mul_nonpos_of_nonpos_of_nonneg (div_nonpos_of_nonpos_of_nonneg hm0 hn1)
-                (by positivity)
-            linarith [(Nat.cast_nonneg _ : (0 : ℝ) ≤ ((R s σ).card : ℝ))]
-          · rcases eq_or_lt_of_le hn1 with h0 | h0
-            · rw [hx, ← h0, div_zero, zero_mul]; positivity
-            · calc x * ((Ipos s {q}).card : ℝ) ≤ x * ((n : ℝ) - 1) := by
-                    gcongr
-                _ = m := by rw [hx]; field_simp
-                _ ≤ _ := hm)
-      have h3 := ih (by omega)
-      calc prob (B (s + 1)) ≤ _ := h1
-        _ ≤ Real.exp (-x) * prob (B s) := by convert h2
-        _ ≤ Real.exp (-x) * (Real.exp (-(x * s)) * prob (B 0)) := by gcongr
-        _ = Real.exp (-(x * ↑(s + 1))) * prob (B 0) := by
-            rw [← mul_assoc, ← Real.exp_add]; congr 2; push_cast; ring
-  have hfin : prob (fun σ => arrTime σ v + 1 = j' + 1 ∧ IsPivot G σ v ∧
-      m + 1 ≤ (pclSize G σ v : ℝ)) ≤ prob (B j') := by
-    apply prob_mono
-    rintro σ ⟨ha, hp, hm⟩
-    have ha' : arrTime σ v = j' := by omega
-    refine ⟨ha', ?_, ?_⟩
-    · rw [← ha']; exact (isPivot_iff G σ v).1 hp
-    · have := pclSize_le G σ hp
-      rw [ha'] at this
-      have : (pclSize G σ v : ℝ) ≤ 1 + ((R j' σ).card : ℝ) := by exact_mod_cast this
+/-- `(t - j - 1) / (n - j - 1) ≤ t / n` for `j < t ≤ n`. -/
+lemma ratio_shift_le {j t : ℕ} (hjt : j < t) (ht : t ≤ n) :
+    ((t : ℝ) - (j + 1 : ℕ)) / ((n : ℝ) - (j + 1 : ℕ)) ≤ (t : ℝ) / n := by
+  have hn : (0 : ℝ) < n := by exact_mod_cast (show 0 < n by omega)
+  rcases eq_or_lt_of_le (show j + 1 ≤ n by omega) with h | h
+  · rw [h, sub_self, div_zero]; positivity
+  · have h' : (0 : ℝ) < (n : ℝ) - (j + 1 : ℕ) := by
+      have : ((j + 1 : ℕ) : ℝ) < n := by exact_mod_cast h
       linarith
-  have hB0 : prob (B 0) ≤ prob (fun σ => arrTime σ v + 1 = j' + 1) :=
-    prob_mono (fun σ h => by have := h.1; omega)
-  calc _ ≤ prob (B j') := hfin
-    _ ≤ Real.exp (-(x * j')) * prob (B 0) := chain j' le_rfl
-    _ ≤ Real.exp (-(x * j')) * prob (fun σ => arrTime σ v + 1 = j' + 1) := by gcongr
-    _ = _ := by
-        congr 2
-        rw [hx]; push_cast; ring
+    rw [div_le_div_iff₀ h' hn]
+    have htn : (t : ℝ) ≤ n := by exact_mod_cast ht
+    push_cast
+    nlinarith
+
+/-- The Chernoff estimate used in the proof of Lemma 7.7: for `μ ≥ 0`, `L ≥ 0` (with `L = c ln n`)
+and a threshold `θ ≥ 2μ + L` with `θ > 0`, one of the two alternatives of `prob_cond_upper` holds
+with bound `exp(-L/3)`. -/
+lemma chernoff_choice_upper {μ L θ : ℝ} (hμ : 0 ≤ μ) (hL : 0 ≤ L) (hθ : 2 * μ + L ≤ θ)
+    (hθ0 : 0 < θ) :
+    (∃ δ : ℝ, 0 < δ ∧ (1 + δ) * μ ≤ θ ∧ Real.exp (-(δ ^ 2 * μ) / (2 + δ)) ≤ Real.exp (-L / 3)) ∨
+      (μ = 0 ∧ 0 < θ) := by
+  rcases eq_or_lt_of_le hμ with h0 | hpos
+  · exact Or.inr ⟨h0.symm, hθ0⟩
+  left
+  rcases le_or_gt L μ with hLμ | hLμ
+  · refine ⟨1, one_pos, by linarith, ?_⟩
+    apply Real.exp_le_exp.2
+    rw [div_le_div_iff₀ (by norm_num) (by norm_num)]
+    nlinarith
+  · have hL0 : 0 < L := by linarith
+    refine ⟨L / μ, by positivity, ?_, ?_⟩
+    · have : (1 + L / μ) * μ = μ + L := by field_simp
+      rw [this]; linarith
+    · apply Real.exp_le_exp.2
+      have e : (L / μ) ^ 2 * μ / (2 + L / μ) = L ^ 2 / (2 * μ + L) := by
+        field_simp
+      rw [neg_div, e, neg_div, neg_le_neg_iff, div_le_div_iff₀ (by norm_num) (by positivity)]
+      nlinarith
+
+/-- **Lemma 7.7 (pivot cluster size at an arbitrary instant), corrected.**  Let `v` be a vertex,
+`j` a (`0`-indexed) arrival time and `t > j` (i.e. `t ≥ t_v` in the paper's `1`-indexed
+convention).  Conditioned on `v` arriving at time `j` and being a pivot, the probability that
+`p_t(v) > 1 + 2 p_n(v) t / n + c ln n` is at most `n^{-c/3}`, for any constant `c > 0`.
+The conditional probability is written as `Pr[A ∧ E] ≤ n^{-c/3} Pr[A]`.
+(The paper states the bound `1 + p_n(v) t / n + c ln n`, which is false in general; see the module
+docstring.)  (Assumes Fact 2.2, as the hypothesis `HypergeomChernoff`.) -/
+theorem lemma_7_8 (hH : HypergeomChernoff) (v : Fin n) {j t : ℕ} (hjt : j < t) (ht : t ≤ n)
+    {c : ℝ} (hc : 0 < c) :
+    prob (fun σ => (arrTime σ v = j ∧ IsPivot G σ v) ∧
+      1 + 2 * (pclSize G σ v : ℝ) * t / n + c * Real.log n < pclAt G σ v t) ≤
+      (n : ℝ) ^ (-c / 3) * prob (fun σ => arrTime σ v = j ∧ IsPivot G σ v) := by
+  have hn : (0 : ℝ) < n := by exact_mod_cast (show 0 < n by omega)
+  have hL : 0 ≤ c * Real.log n :=
+    mul_nonneg hc.le (Real.log_nonneg (by exact_mod_cast (show 1 ≤ n by omega)))
+  set A : Equiv.Perm (Fin n) → Prop := fun σ => arrTime σ v = j ∧ IsPivot G σ v with hA
+  set θ : Equiv.Perm (Fin n) → ℝ := fun σ => 2 * (pclSize G σ v : ℝ) * t / n + c * Real.log n
+    with hθ
+  have hmono : prob (fun σ => A σ ∧
+      1 + 2 * (pclSize G σ v : ℝ) * t / n + c * Real.log n < pclAt G σ v t) ≤
+      prob (fun σ => A σ ∧ θ σ ≤ ((firstSet σ t ∩ uncNbrs G σ v).card : ℝ)) := by
+    apply prob_mono
+    rintro σ ⟨hAσ, hlt⟩
+    refine ⟨hAσ, ?_⟩
+    rw [pclAt_eq G σ hAσ.2 (by rw [hAσ.1]; exact hjt)] at hlt
+    push_cast at hlt
+    simp only [hθ]; linarith
+  refine hmono.trans ?_
+  have hexp : Real.exp (-(c * Real.log n) / 3) = (n : ℝ) ^ (-c / 3) := by
+    rw [Real.rpow_def_of_pos hn]; congr 1; ring
+  rw [← hexp]
+  convert prob_cond_upper hH (j := j + 1) (by omega) ht A
+    (fun σ ρ hρ h => pivotEvent_mul hρ h) (fun σ => uncNbrs G σ v)
+    (fun σ ρ hρ h => uncNbrs_mul hρ h.1)
+    (fun σ h u hu => by
+      have := lt_arrTime_of_mem_uncNbrs G σ hu
+      rw [h.1] at this; omega)
+    θ
+    (fun σ ρ hρ h => by simp only [hθ, pclSize_mul hρ h])
+    (Real.exp (-(c * Real.log n) / 3)) (Real.exp_pos _).le ?_ using 2
+  · convert rfl
+  intro σ hσ
+  simp only
+  have hp := pclSize_eq G σ hσ.2
+  set r := (uncNbrs G σ v).card
+  have hμ0 : 0 ≤ (r : ℝ) * ((t : ℝ) - (j + 1 : ℕ)) / ((n : ℝ) - (j + 1 : ℕ)) := by
+    have h1 : ((j + 1 : ℕ) : ℝ) ≤ t := by exact_mod_cast (show j + 1 ≤ t by omega)
+    have h2 : ((j + 1 : ℕ) : ℝ) ≤ n := by exact_mod_cast (show j + 1 ≤ n by omega)
+    apply div_nonneg (mul_nonneg (Nat.cast_nonneg _) (by linarith)) (by linarith)
+  have hμle : (r : ℝ) * ((t : ℝ) - (j + 1 : ℕ)) / ((n : ℝ) - (j + 1 : ℕ)) ≤
+      (pclSize G σ v : ℝ) * t / n := by
+    rw [mul_div_assoc, mul_div_assoc]
+    have hr : (r : ℝ) ≤ pclSize G σ v := by rw [hp]; push_cast; linarith
+    have hratio := ratio_shift_le (n := n) hjt ht
+    have hrat0 : 0 ≤ ((t : ℝ) - (j + 1 : ℕ)) / ((n : ℝ) - (j + 1 : ℕ)) := by
+      have h1 : ((j + 1 : ℕ) : ℝ) ≤ t := by exact_mod_cast (show j + 1 ≤ t by omega)
+      have h2 : ((j + 1 : ℕ) : ℝ) ≤ n := by exact_mod_cast (show j + 1 ≤ n by omega)
+      apply div_nonneg <;> linarith
+    calc (r : ℝ) * (((t : ℝ) - (j + 1 : ℕ)) / ((n : ℝ) - (j + 1 : ℕ)))
+        ≤ (pclSize G σ v : ℝ) * (((t : ℝ) - (j + 1 : ℕ)) / ((n : ℝ) - (j + 1 : ℕ))) := by
+          gcongr
+      _ ≤ (pclSize G σ v : ℝ) * (t / n) := by gcongr
+  have hθ0 : 0 < θ σ := by
+    simp only [hθ]
+    have : (1 : ℝ) ≤ pclSize G σ v := by rw [hp]; push_cast; linarith [(Nat.cast_nonneg r : (0:ℝ) ≤ r)]
+    have ht0 : (0 : ℝ) < t := by exact_mod_cast (show 0 < t by omega)
+    positivity
+  have e2 : 2 * (pclSize G σ v : ℝ) * t / n = 2 * ((pclSize G σ v : ℝ) * t / n) := by ring
+  exact chernoff_choice_upper hμ0 hL (by simp only [hθ]; linarith) hθ0
+
 end CCK

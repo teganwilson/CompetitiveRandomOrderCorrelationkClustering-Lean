@@ -3,7 +3,7 @@ module
 public import RequestProject.Lemma61
 public import RequestProject.CliqueInstance
 public import RequestProject.PivotLoad
-public import RequestProject.Lemma710
+public import RequestProject.Lemma79
 
 /-!
 # Lemma 6.2

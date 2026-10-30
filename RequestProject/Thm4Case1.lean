@@ -1,6 +1,6 @@
 module
 
-public import RequestProject.Lemma79Prob
+public import RequestProject.Lemma78Prob
 
 /-!
 # The clique instance `J_σ` of the pivot clusters (proof of Theorem 4)
@@ -156,13 +156,13 @@ end CCK
 /-!
 # Pivot cluster size estimation (proof of Theorem 4)
 
-Good events (with failure probabilities from Lemmas 7.12 and 7.10):
+Good events (with failure probabilities from Lemmas 7.11 and 7.9):
 * `GoodLate`: pivot clusters whose pivot has not arrived by time `2^i` are small (property (a));
 * `GoodHeavy`: pivot clusters with many early arrivals remain large (property (c)).
 
 Consequences, with `θ = n ln n / T`: late pivot clusters have size `< 2 c_L θ`; early pivot
 clusters with at least `β ln n + 1` arrivals by time `T` have size `≥ (β/4) θ`; and (on the good
-event of Lemma 7.6) early pivot clusters with fewer arrivals have size `≤ (4β + 2c + 10) θ`.
+event of Lemma 7.5) early pivot clusters with fewer arrivals have size `≤ (4β + 2c + 10) θ`.
 -/
 
 @[expose] public section
@@ -182,7 +182,7 @@ def GoodLate (σ : Equiv.Perm (Fin n)) (cL : ℝ) : Prop :=
   ∀ i ≤ Nat.log 2 n, ∀ r : Fin n, (∀ p ∈ pivotsUpTo G σ (2 ^ i), p ∉ closedNbhd G r) →
     ((uncovered G σ (2 ^ i) ∩ closedNbhd G r).card : ℝ) < cL * n * Real.log n / 2 ^ i
 
-/-- Property (c) of the proof of Theorem 4 (Lemma 7.10). -/
+/-- Property (c) of the proof of Theorem 4 (Lemma 7.9). -/
 def GoodHeavy (σ : Equiv.Perm (Fin n)) (β : ℝ) : Prop :=
   ∀ v, ∀ i ∈ range (Nat.log 2 n + 1), IsPivot G σ v → β * Real.log n + 1 ≤ pclAt G σ v (2 ^ i) →
     β * n * Real.log n / 2 ^ (i + 1) ≤ (pclSize G σ v : ℝ)
@@ -350,7 +350,7 @@ lemma pclSize_heavy_ge {β : ℝ} (hβ : 0 ≤ β) (hn : 2 ≤ n) (hG : GoodHeav
       nlinarith
     linarith
 
-/-- On the good event of Lemma 7.6, an early pivot cluster with fewer than `β ln n + 1` arrivals
+/-- On the good event of Lemma 7.5, an early pivot cluster with fewer than `β ln n + 1` arrivals
 by time `T` (where `T < n` is the arrival time of a pivot outside it) has size at most
 `(4β + 2c + 10) n ln n / T`. -/
 lemma pclSize_light_le {β c : ℝ} (hβ : 0 ≤ β) (hc : 0 ≤ c) (hn : 2 ≤ n) (hG : Good76 G σ c)
@@ -727,7 +727,7 @@ lemma n_div_T_le_two_theta (hn : 2 ≤ n) {T : ℝ} (hT : 0 < T) :
   have : 0 ≤ (n : ℝ) / T := by positivity
   nlinarith
 
-/-- **Theorem 4, Case 1 (Large `U`), inequality (22).**  On the good events (Lemma 7.9 with
+/-- **Theorem 4, Case 1 (Large `U`), inequality (22).**  On the good events (Lemma 7.8 with
 constant `48`; properties (a) and (c) with `c_L = 6`, `β = 60`), if `T < n` and
 `|U| > 24 |S₁| θ` with `θ = n ln n / T`, then the merging cost is at most
 `2400 ln n · s(J_σ) a(J_σ)`. -/
@@ -810,7 +810,7 @@ theorem mergeCost_case1 (hk : 0 < k) (hn : 2 ≤ n) (h : ∃ t, k < (pivotsUpTo 
         nlinarith
 
 /-- **Theorem 4, Case 2 (Small `U`), projected-load bound and (25).**  On the good event of
-Lemma 7.9 (constant `48`), if `T < n` and `|U| ≤ 24 |S₁| θ` (with `β = 60`), then the merging cost
+Lemma 7.8 (constant `48`), if `T < n` and `|U| ≤ 24 |S₁| θ` (with `β = 60`), then the merging cost
 is at most `90000 ln n · θ · |U|` (here `S = S₁`, `μ(S₁) ≤ 346 θ` and `|U|/|S₁| ≤ 24 θ`). -/
 theorem mergeCost_case2 (hk : 0 < k) (hn : 2 ≤ n) (h : ∃ t, k < (pivotsUpTo G σ (t + 1)).card)
     (hGL : GoodLoad G σ 48)

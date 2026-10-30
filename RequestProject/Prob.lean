@@ -310,7 +310,7 @@ lemma prob_disjoint_firstSet {t : ℕ} (ht : t ≤ n) (A : Finset (Fin n)) :
   rw [this, card_powersetCard, card_sdiff_of_subset (subset_univ _), card_univ, Fintype.card_fin]
 
 /-- Probability that two fixed distinct vertices are both among the first `t` arrivals:
-`t(t-1) / (n(n-1))` (used in Lemma 5.1 and Lemma 7.11). -/
+`t(t-1) / (n(n-1))` (used in Lemma 5.1 and Lemma 7.10). -/
 lemma prob_pair_firstSet {t : ℕ} (ht : t ≤ n) (u v : Fin n) (huv : u ≠ v) :
     prob (fun σ => u ∈ firstSet σ t ∧ v ∈ firstSet σ t) =
       ((t : ℝ) * (t - 1)) / (n * (n - 1)) := by

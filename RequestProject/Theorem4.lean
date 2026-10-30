@@ -8,7 +8,7 @@ public import RequestProject.Theorem5
 
 We assemble the proof of Theorem 4: the cost of BALANCED PIVOT is at most the cost of PIVOT plus
 the merging cost (cost of type (iii)); the merging cost is bounded pointwise using the Large-`U`
-case (comparison with Lemma 7.5), the Small-`U` case (comparison with the clique instance of an
+case (comparison with Lemma 7.4), the Small-`U` case (comparison with the clique instance of an
 optimal correlation clustering, window by window), and the trivial bound `n²` on the bad events.
 -/
 

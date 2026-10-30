@@ -6,7 +6,7 @@ public import RequestProject.ProbTools
 /-!
 # Sequential arrival arguments
 
-The proofs of Lemma 7.7 and Lemma 7.12 bound the probability of an event `B_t` along the arrival
+The proofs of Lemma 7.6 and Lemma 7.11 bound the probability of an event `B_t` along the arrival
 process by chaining the one-step estimates `Pr[B_{t+1}] ≤ (1 - κ/(n-t)) Pr[B_t]`: conditioned on
 the first `t` arrivals (and possibly on the positions of some fixed later arrivals), the next
 arrival is a uniformly random one among the remaining vertices.  This file makes this rigorous

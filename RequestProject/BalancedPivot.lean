@@ -1,7 +1,7 @@
 module
 
 public import RequestProject.Claim63
-public import RequestProject.Lemma76
+public import RequestProject.Lemma75
 
 /-!
 # The algorithm BALANCED PIVOT (Section 7.1, Algorithm 1)

@@ -9,7 +9,7 @@ For a pivot `v` we write `p_t(v)` for the number of vertices of its pivot cluste
 `t` arrivals (`pclAt`) and `p_n(v)` for its final size (`pclSize`).  Conditioned on the arrival
 sequence up to the arrival of `v`, the pivot cluster of `v` is `{v} ∪ R_{t_v - 1}(v)` and the
 remaining vertices arrive in uniformly random order; this is the structure used in the proofs of
-Lemmas 7.6, 7.8 and 7.10.
+Lemmas 7.5, 7.6 and 7.9.
 -/
 
 @[expose] public section
@@ -32,7 +32,7 @@ noncomputable def uncNbrs (σ : Equiv.Perm (Fin n)) (v : Fin n) : Finset (Fin n)
   uncovered G σ (arrTime σ v) ∩ G.neighborFinset v
 
 /-- For a pivot `v`, its pivot cluster without `v` is exactly `R_{t_v - 1}(v)`
-(proof of Lemma 7.7: `p_n(v) = 1 + |R_{t_v-1}(v)|`). -/
+(proof of Lemma 7.6: `p_n(v) = 1 + |R_{t_v-1}(v)|`). -/
 lemma pivotCluster_erase_eq (σ : Equiv.Perm (Fin n)) {v : Fin n} (hv : IsPivot G σ v) :
     (univ.filter (fun u => pivotOf G σ u = v)).erase v = uncNbrs G σ v := by
   apply Subset.antisymm (pivotCluster_erase_subset G σ hv)

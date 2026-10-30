@@ -1,11 +1,11 @@
 module
 
-public import RequestProject.Lemma77
+public import RequestProject.Lemma76
 
 /-!
 # Conditional hypergeometric Chernoff bounds
 
-The proofs of Lemmas 7.6, 7.8 and 7.10 condition on the arrival sequence up to some time `j`
+The proofs of Lemmas 7.5, 7.7 and 7.9 condition on the arrival sequence up to some time `j`
 and then use that the remaining vertices arrive in a uniformly random order, so that the number
 of vertices of a (conditionally fixed) set arriving between times `j` and `t` is hypergeometric,
 and apply the Chernoff bounds of Fact 2.2 to it.
@@ -25,7 +25,7 @@ namespace CCK
 variable {n : ℕ}
 
 /-- **Fact 2.2 (Chernoff bounds for hypergeometric distributions)**, in the form used in the
-proofs of Lemmas 7.6, 7.8 and 7.10, assumed as a hypothesis.  Let `I` be a set of positions,
+proofs of Lemmas 7.5, 7.7 and 7.9, assumed as a hypothesis.  Let `I` be a set of positions,
 `J ⊆ I` and `Q ⊆ I`, and let `ρ` be a uniformly random permutation of the positions in `I`
 (fixing all other positions).  Then `X = |{p ∈ J : ρ p ∈ Q}| ∼ Hypergeometric(|I|, |Q|, |J|)`
 has mean `μ = |Q| |J| / |I|` and satisfies the Chernoff bounds

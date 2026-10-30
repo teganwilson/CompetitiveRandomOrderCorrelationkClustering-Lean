@@ -40,7 +40,7 @@ noncomputable def Zcnt (σ : Equiv.Perm (Fin n)) : ℕ :=
   ((range (min k (numCliques Q))).filter
     (fun j => ∀ p ∈ earlyPiv G k σ, cidx Q p ≠ j)).card
 
-/-- The good event `G^groups` (29) of the proof of Theorem 4 (from Lemma 7.12 with constant `6`),
+/-- The good event `G^groups` (29) of the proof of Theorem 4 (from Lemma 7.11 with constant `6`),
 for all windows simultaneously. -/
 def GoodGroups (σ : Equiv.Perm (Fin n)) : Prop :=
   ∀ i ≤ Nat.log 2 n, ∀ j ∈ range n, (∀ p ∈ pivotsUpTo G σ (2 ^ i), p ∉ fib Q j) →

@@ -6,7 +6,7 @@ public import RequestProject.Hyp
 # Elementary probability tools on random arrival orders
 
 Union bound, Markov's inequality, and the exact second factorial moments of hypergeometric
-counts (the pair-counting identities used in Lemma 7.11, in equations (4), (5) of the proof of
+counts (the pair-counting identities used in Lemma 7.10, in equations (4), (5) of the proof of
 Theorem 5 and in equations (35)–(37) of the proof of Theorem 4).
 -/
 

@@ -5,7 +5,7 @@ public import RequestProject.Offline
 public import RequestProject.CliqueInstance
 
 /-!
-# The Pivot algorithm and Lemma 7.5
+# The Pivot algorithm and Lemma 7.4
 
 The (online, random-order) PIVOT algorithm of [ACN05] (recalled at the beginning of Section 6 of
 the paper): when a vertex arrives, if none of its previously arrived neighbours is a pivot, it
@@ -249,9 +249,9 @@ lemma pivotOf_eq_self_iff (v : Fin n) : pivotOf G σ v = v ↔ IsPivot G σ v :=
 
 end basic
 
-/-! ### Lemma 7.5 -/
+/-! ### Lemma 7.4 -/
 
-/-- **Lemma 7.5 (lower bound on the optimal cost using Pivot).**  Let `J_σ` be the clique instance
+/-- **Lemma 7.4 (lower bound on the optimal cost using Pivot).**  Let `J_σ` be the clique instance
 obtained by running PIVOT with arrival order `σ` and turning all pivot clusters into disjoint
 cliques (`J_σ = cliqueGraph (pivotOf G σ)`).  Assuming the 3-approximation guarantee of PIVOT
 ([ACN05], hypothesis `PivotThreeApprox`), `E[s(J_σ) a(J_σ)] ≤ 16 Cost(OPT_k(I))`, i.e.
